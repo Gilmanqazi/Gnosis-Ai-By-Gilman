@@ -10,7 +10,7 @@ export const register = async ({username,email,password})=>{
     const res = await api.post("/api/auth/register",{
       username,email,password
     })
-  
+    console.log(res.data) // 👈 check this
     return res.data
   }catch(err){
     console.log(err)

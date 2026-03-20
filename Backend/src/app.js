@@ -1,6 +1,6 @@
 import express from "express"
 import authRouter from "./Routes/auth.route.js"
-import cookieParser  from "cookie-parser"
+import cookieParser from "cookie-parser"
 import cors from "cors"
 import morgan from "morgan"
 import chatRouter from "./Routes/chat.route.js"
@@ -8,27 +8,34 @@ import path from "path"
 
 const app = express()
 
+// ✅ IMPORTANT: Render के लिए सही path
+const frontendPath = path.join(process.cwd(), "Frontend/Perplexity-Frontend/dist")
+
+// ✅ CORS
 app.use(cors({
-  origin:["http://localhost:5173",
-  "https://gnosis-ai-by-gilman.onrender.com"],
-  credentials:true,
-  methods:["GET", "POST", "PUT", "DELETE"]
+  origin: [
+    "http://localhost:5173",
+    "https://gnosis-ai-by-gilman.onrender.com"
+  ],
+  credentials: true
 }))
 
-app.use(express.static(path.resolve("../Frontend/Perplexity-Frontend/dist")))
-
-app.use((req, res) => {
-  res.sendFile(path.resolve("../Frontend/Perplexity-Frontend/dist/index.html"))
-})
-
-//Middleware
+// ✅ Middleware
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser())
 app.use(morgan("dev"))
 
+// ✅ API routes FIRST (VERY IMPORTANT)
+app.use("/api/auth", authRouter)
+app.use("/api/chats", chatRouter)
 
-app.use("/api/auth",authRouter)
-app.use("/api/chats",chatRouter)
-    
+// ✅ Static frontend serve
+app.use(express.static(frontendPath))
+
+// ✅ Catch-all route (LAST)
+app.use((req, res) => {
+  res.sendFile(path.join(frontendPath, "index.html"))
+})
+
 export default app

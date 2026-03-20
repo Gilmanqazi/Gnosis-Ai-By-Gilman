@@ -54,9 +54,10 @@ await sendMail({
 })
 
 res.status(201).json({
-  message:"Registration Successfull Verification email sent. Please check your inbox.",
+  success: true,
+  message: "Registration successful",
   user
-})
+});
 
 }
 
