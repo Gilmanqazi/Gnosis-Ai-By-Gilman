@@ -1,14 +1,14 @@
 import express from "express"
 import authRouter from "./Routes/auth.route.js"
+import chatRouter from "./Routes/chat.route.js"
 import cookieParser from "cookie-parser"
 import cors from "cors"
 import morgan from "morgan"
-import chatRouter from "./Routes/chat.route.js"
 import path from "path"
 
 const app = express()
 
-// ✅ IMPORTANT: Render के लिए सही path
+// ✅ Render path fix
 const frontendPath = path.join(process.cwd(), "Frontend/Perplexity-Frontend/dist")
 
 // ✅ CORS
@@ -26,14 +26,14 @@ app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser())
 app.use(morgan("dev"))
 
-// ✅ API routes FIRST (VERY IMPORTANT)
+// ✅ API routes
 app.use("/api/auth", authRouter)
 app.use("/api/chats", chatRouter)
 
-// ✅ Static frontend serve
+// ✅ frontend serve
 app.use(express.static(frontendPath))
 
-// ✅ Catch-all route (LAST)
+// ✅ catch-all
 app.use((req, res) => {
   res.sendFile(path.join(frontendPath, "index.html"))
 })
