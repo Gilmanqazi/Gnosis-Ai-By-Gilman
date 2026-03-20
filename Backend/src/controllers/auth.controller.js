@@ -3,6 +3,8 @@ import { sendMail } from "../services/mail.server.js";
 import jwt from "jsonwebtoken"
 
 
+const BASE_URL = "https://gnosis-ai-by-gilman.onrender.com";
+
 export async function registerContrller (req,res,next){
 
 const {username, email, password} = req.body
@@ -41,7 +43,7 @@ await sendMail({
     <p>Thank you for signing up. Please verify your email to activate your account.</p>
 
     <a 
-      href="http://localhost:3000/api/auth/verify-email?token=${emailVarificationToken}" 
+      href="${BASE_URL}/api/auth/verify-email?token=${emailVarificationToken}" 
       style="background:#2563eb;color:white;padding:12px 20px;border-radius:6px;text-decoration:none;">
       Verify Email
     </a>
@@ -97,7 +99,7 @@ const html = `
     </p>
 
     <div style="margin-top:30px;">
-      <a href="http://localhost:5173/login"
+      <a href="${BASE_URL}/login"
         style="
           background:#2563eb;
           color:white;
@@ -239,7 +241,7 @@ export async function resendEmail(req, res) {
       { expiresIn: "1d" }
     );
 
-    const verifyLink = `http://localhost:3000/api/auth/verify-email?token=${token}`;
+    const verifyLink = `${BASE_URL}/api/auth/verify-email?token=${token}`;
 
     await sendMail({
       to: user.email,
