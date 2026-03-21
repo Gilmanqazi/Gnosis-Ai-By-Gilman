@@ -38,7 +38,7 @@ app.use(morgan("dev"));
 
 // --- 🔒 CORS ---
 app.use(cors({
-    origin: ["http://localhost:5173", "https://gnosis-ai-by-gilman.onrender.com"],
+    origin:"https://gnosis-ai-by-gilman.onrender.com",
     credentials: true
 }));
 
