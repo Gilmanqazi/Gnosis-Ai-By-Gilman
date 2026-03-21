@@ -12,6 +12,8 @@ import chatRouter from "./Routes/chat.route.js";
 
 const app = express();
 
+app.set("trust proxy", 1);
+
 // --- 🛠️ PATH SETUP (The Most Robust Way) ---
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

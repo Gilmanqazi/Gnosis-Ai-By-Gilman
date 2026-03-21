@@ -24,7 +24,7 @@ const res = await api.post("/api/auth/login",{
   email,password
 })
 
-
+console.log(res.data) // 👈 check this
 return res.data
 }catch(err){
   console.log(err)
@@ -37,7 +37,7 @@ export const  getMe = async ()=>{
 
 try{
   const res = await api.get("/api/auth/get-me")
-
+  console.log(res.data) // 👈 check this
 return res.data
 }  catch(err){
   console.log(err)
@@ -48,7 +48,7 @@ return res.data
 export const verifyEmail = async (token)=>{
   try{
 const res = await api.get(`/api/auth/verify-email?token${token}`)
-console.log(res)
+console.log(res.data)
 return res.data
   }catch(err){
     console.log(err)
@@ -60,7 +60,7 @@ export const resendVerification = async (email)=>{
 
   try{
     const res = await api.post("/api/auth/resend-verification-email",{email})
-    console.log(res)
+    console.log(res.data)
     return res.data
   }catch(err){
     console.log(err)
