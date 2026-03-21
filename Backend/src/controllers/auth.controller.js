@@ -28,7 +28,7 @@ export async function registerContrller(req, res) {
     const token = jwt.sign(
       { email: user.email },
       process.env.JWT_SECRET,
-      { expiresIn: "1d" }
+      { expiresIn: "5d" }
     );
 
     await sendMail({
@@ -120,13 +120,12 @@ export async function loginController(req, res) {
       { expiresIn: "7d" }
     );
 
-    // ✅ FIXED COOKIE (VERY IMPORTANT)
     res.cookie("token", token, {
-      httpOnly: true,
-      secure: true,
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 din tak cookie rahegi
-      sameSite: "None",
-      path:"/",
+      httpOnly: true,     // Security ke liye
+      secure: true,       // Render (HTTPS) ke liye COMPULSORY hai
+      sameSite: "None",   // 'N' Capital hona chahiye (String format)
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 din
+      path: "/"           // Taaki har route par cookie mile
     });
 
     res.status(200).json({
