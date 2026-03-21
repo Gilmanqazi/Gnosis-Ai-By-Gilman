@@ -3,6 +3,7 @@ import ReactMarkdown from 'react-markdown'
 import { useSelector } from 'react-redux'
 import { useChat } from '../hook/useChat'
 import remarkGfm from 'remark-gfm'
+import { useAuth } from '../../auth/Hook/useAuth'
 
 const ChatUI = () => {
   const chat = useChat()
@@ -13,10 +14,29 @@ const ChatUI = () => {
   const isLoading = useSelector((state) => state.chat.isLoading) 
   const scrollRef = useRef(null)
 
+  const auth = useAuth()
+
   useEffect(() => {
-    chat.initializeSocketConnection()
-    chat.handleGetChats()
-  }, [])
+
+
+    const initApp = async () => {
+      try {
+        // 1. Pehle user ka data fetch karein
+        const userData = await auth.handleGetMe(); 
+        
+        // 2. Agar user mil gaya (No 401), tabhi ye calls karein
+        if (userData) {
+          chat.initializeSocketConnection();
+          chat.handleGetChats();
+        }
+      } catch (err) {
+        // Agar 401 aata hai, toh silent rahein (User logged in nahi hai)
+        console.log("User session not found, redirecting to login...");
+      }
+    };
+  
+    initApp();
+  }, []);
 
   useEffect(() => {
     if (scrollRef.current) {
