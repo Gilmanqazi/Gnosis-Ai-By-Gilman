@@ -61,6 +61,7 @@ export async function verifyEmail(req, res) {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     const user = await userModel.findOne({ email: decoded.email });
+    
 
     if (!user) {
       return res.status(400).json({
