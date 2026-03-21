@@ -45,14 +45,15 @@ return res.data
 }
 }
 
-export const verifyEmail = async (token)=>{
-  try{
-const res = await api.get(`/api/auth/verify-email?token${token}`)
-console.log(res.data)
-return res.data
-  }catch(err){
-    console.log(err)
-    throw err
+export const verifyEmail = async (token) => {
+  try {
+    // ?token= zaroori hai
+    const res = await api.get(`/api/auth/verify-email?token=${token}`); 
+    console.log(res.data);
+    return res.data;
+  } catch (err) {
+    console.log(err);
+    throw err;
   }
 }
 
