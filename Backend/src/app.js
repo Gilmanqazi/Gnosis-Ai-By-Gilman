@@ -12,25 +12,27 @@ import chatRouter from "./Routes/chat.route.js";
 
 const app = express();
 
-app.set("trust proxy", 1);
-
-// --- 🛠️ PATH SETUP (The Most Robust Way) ---
+// --- 🛠️ PATH SETUP ---
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Agar app.js 'src' folder mein hai, toh 2 baar bahar nikalna hoga (.. , ..)
-// Agar app.js direct 'Backend' root mein hai, toh sirf 1 baar (..)
+/**
+ * 💡 IMPORTANT: 
+ * Agar app.js 'Backend/src' folder ke andar hai, toh 2 baar bahar jana hoga ("..", "..").
+ * Agar app.js directly 'Backend' root mein hai, toh sirf 1 baar ("..") kaafi hai.
+ */
 const frontendPath = path.resolve(__dirname, "..", "..", "Frontend", "Perplexity-Frontend", "dist");
 
-// Server start hote hi check karega ki path sahi hai ya nahi
+// Server start hote hi path validation
 if (fs.existsSync(frontendPath)) {
-    console.log("✅ Frontend Path Found:", frontendPath);
+    console.log("✅ Frontend Dist Found at:", frontendPath);
 } else {
-    console.log("❌ Frontend Path NOT Found:", frontendPath);
-    console.log("💡 Tip: Check if 'dist' folder exists and folder names are correct.");
+    console.warn("⚠️ WARNING: Frontend Dist NOT Found! Path checked:", frontendPath);
+    console.info("👉 Tip: Run 'npm run build' inside your 'Perplexity-Frontend' folder.");
 }
 
 // --- 🌐 MIDDLEWARE ---
+app.set("trust proxy", 1);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -38,7 +40,7 @@ app.use(morgan("dev"));
 
 // --- 🔒 CORS ---
 app.use(cors({
-    origin:"https://gnosis-ai-by-gilman.onrender.com",
+    origin: "http://localhost:5173", // Development ke liye
     credentials: true
 }));
 
@@ -47,22 +49,27 @@ app.use("/api/auth", authRouter);
 app.use("/api/chats", chatRouter);
 
 // --- 📂 STATIC FILES ---
+// Yeh line 'dist' folder ke andar ki assets (JS, CSS, Images) serve karegi
 app.use(express.static(frontendPath));
 
-// --- 🎯 CATCH-ALL ROUTE (Safe Method for Express 5/Node 22) ---
-// '*' ki jagah hum middleware use kar rahe hain taaki crash na ho
-app.use((req, res, next) => {
-    // Agar API route nahi mila toh 404 return karein
+// --- 🎯 CATCH-ALL ROUTE (For SPA/React Routing) ---
+/**
+ * Yeh route sabse niche hona chahiye. 
+ * Agar koi request API ya static file se match nahi hoti, 
+ * toh React ki index.html serve hogi.
+ */
+app.get((req, res) => {
+    // API requests ko index.html par redirect hone se rokne ke liye
     if (req.url.startsWith('/api')) {
         return res.status(404).json({ message: "API endpoint not found" });
     }
 
-    // Baki sabhi requests ke liye Frontend ki index.html bhejein
     const indexPath = path.join(frontendPath, "index.html");
+    
     if (fs.existsSync(indexPath)) {
         res.sendFile(indexPath);
     } else {
-        res.status(404).send("Frontend build files are missing. Please run 'npm run build'.");
+        res.status(404).send("<h1>404 - Frontend Build Missing</h1><p>Please build your frontend application.</p>");
     }
 });
 

@@ -2,7 +2,7 @@ import userModel from "../models/user.model.js";
 import { sendMail } from "../services/mail.server.js";
 import jwt from "jsonwebtoken";
 
-const BASE_URL = "https://gnosis-ai-by-gilman.onrender.com";
+const BASE_URL = "http://localhost:5173";
 
 // ================= REGISTER =================
 export async function registerContrller(req, res) {
@@ -36,7 +36,7 @@ export async function registerContrller(req, res) {
       subject: "Verify Your Email",
       html: `
         <h2>Welcome ${username}</h2>
-        <a href="${BASE_URL}/api/auth/verify-email?token=${token}">
+        <a href="http://localhost:3000/api/auth/verify-email?token=${token}">
           Verify Email
         </a>
       `
