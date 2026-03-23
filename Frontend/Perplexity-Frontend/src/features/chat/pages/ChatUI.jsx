@@ -1,8 +1,10 @@
 import React, { useEffect, useState, useRef } from 'react'
 import ReactMarkdown from 'react-markdown'
-import { useSelector } from 'react-redux'
+import {useSelector ,useDispatch} from 'react-redux'
 import { useChat } from '../hook/useChat'
 import remarkGfm from 'remark-gfm'
+import { setCurrentChatId, setLoading } from '../chat.slice'
+import { deleteChat } from '../service/chat.api'
 
 const ChatUI = () => {
   const chat = useChat()
@@ -17,6 +19,23 @@ const ChatUI = () => {
     chat.initializeSocketConnection()
     chat.handleGetChats()
   }, [])
+
+  const dispatch = useDispatch(); // Dispatch initialize karein
+
+// isLoading ko monitor karne ke liye useEffect
+useEffect(() => {
+  let timer;
+  if (isLoading) {
+    // Agar 3 seconds tak isLoading true rehta hai, toh use false kar do
+    timer = setTimeout(() => {
+      dispatch(setLoading(false));
+    }, 3000);
+  }
+
+  // Cleanup: Agar component band ho ya loading pehle hi khatam ho jaye
+  return () => clearTimeout(timer);
+}, [isLoading, dispatch]);
+
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -33,14 +52,27 @@ const ChatUI = () => {
   const handleSubmitMessage = (e) => {
     e.preventDefault()
     if (!chatInput.trim() || isLoading) return
+    console.log("Sending to ID:", currentChatId);
     chat.handleSendMessage({ message: chatInput.trim(), chatId: currentChatId })
     setChatInput('')
   }
 
+//   const handleDelete = (chatId)=>{
+// if(window.confirm("Kya aap ye chat delete karna chahte hai !"))
+//   chat.handleDeleteChat(chatId)
+// dispatch(deleteChat(chatId))
+//   }
+
+  
+
+
   return (
     <main className='flex h-screen w-full bg-[#000000] text-white font-sans overflow-hidden p-0 md:p-6'>
-      
+    
       {/* 1. Glass Overlay & Mobile Sidebar */}
+
+
+   
       <div 
         className={`fixed inset-0 z-40 bg-black/60 backdrop-blur-sm transition-opacity duration-300 md:hidden ${isSidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
         onClick={() => setIsSidebarOpen(false)}
@@ -57,6 +89,16 @@ const ChatUI = () => {
           <button className='bg-white/10 px-4 py-1.5 rounded-full text-xs font-medium'>Try premium</button>
         </div>
 
+        <button 
+  onClick={() => {
+    dispatch(setCurrentChatId(null)); // ID null hote hi Welcome screen aa jayegi
+    setIsSidebarOpen(false);
+  }}
+  className='w-full mb-4 py-3 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all flex items-center justify-center gap-2 font-medium'
+>
+  <span className='text-lg'>+</span> New Chat
+</button>
+
         <h2 className='text-3xl font-semibold mb-6 tracking-tight'>History</h2>
         
         <div className='flex-1 space-y-3 overflow-y-auto custom-scrollbar'>
@@ -72,6 +114,33 @@ const ChatUI = () => {
                 <p className='text-xs text-white/40 truncate'>Recent interaction</p>
               </div>
               <span className='text-white/20'>›</span>
+              <button 
+      onClick={(e) => {
+        e.stopPropagation();
+        if(window.confirm("Delete this chat?")) {
+            chat.handleDeleteChat(item.id);
+        }
+      }}
+      className="font-bold  group-hover:opacity-100 p-2 hover:text-red-500 transition-all"
+    >
+<svg 
+    xmlns="http://www.w3.org/2000/svg" 
+    width="18" 
+    height="18" 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="2" 
+    strokeLinecap="round" 
+    strokeLinejoin="round"
+  >
+    <path d="M3 6h18"></path>
+    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+    <line x1="10" y1="11" x2="10" y2="17"></line>
+    <line x1="14" y1="11" x2="14" y2="17"></line>
+  </svg>
+    </button>
             </div>
           ))}
         </div>
@@ -133,7 +202,7 @@ const ChatUI = () => {
                 </div>
               </div>
             ))}
-            {isLoading && (
+            {isLoading !== false  && (
               <div className='flex flex-col items-start'>
                 <div className='mt-2 flex gap-1.5 ml-4 bg-[#161616] px-4 py-2.5 rounded-full border border-white/5'>
                     <span className='w-2 h-2 bg-pink-500/60 rounded-full animate-bounce'></span>
@@ -171,7 +240,7 @@ const ChatUI = () => {
         </footer>
       </section>
 
-      <style jsx>{`
+      {/* <style jsx>{`
         .custom-scrollbar::-webkit-scrollbar { width: 0px; }
         
         .liquid-blob {
@@ -188,7 +257,7 @@ const ChatUI = () => {
           0% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; transform: scale(1) rotate(0deg); }
           100% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; transform: scale(1.1) rotate(15deg); }
         }
-      `}</style>
+      `}</style> */}
     </main>
   )
 }

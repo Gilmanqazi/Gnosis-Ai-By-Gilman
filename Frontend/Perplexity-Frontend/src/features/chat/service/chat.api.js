@@ -1,7 +1,7 @@
 import axios from "axios"
 
 const api = axios.create({
-  baseURL:"https://gnosis-ai-by-gilman.onrender.com",
+  baseURL:"http://localhost:3000",
   withCredentials:true
 })
 

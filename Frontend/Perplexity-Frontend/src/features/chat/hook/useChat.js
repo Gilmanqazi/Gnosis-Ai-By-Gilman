@@ -1,7 +1,9 @@
 import { initializeSocketConnection } from "../service/chat.sokcet";
 import { sendMessage, getChats, getMessages, deleteChat } from "../service/chat.api";
-import { setChats, setCurrentChatId, setError, setLoading, createNewChat, addNewMessage, addMessages } from "../chat.slice";
+import { setChats, setCurrentChatId, setError, setLoading, createNewChat, addNewMessage, addMessages,deleteChatState } from "../chat.slice";
 import { useDispatch } from "react-redux";
+
+let socket;
 
 
 export const useChat = () => {
@@ -66,13 +68,35 @@ export const useChat = () => {
             }))
         }
         dispatch(setCurrentChatId(chatId))
+
+
+      
+    }
+
+    async function handleDeleteChat(chatId) {
+        try {
+            dispatch(setLoading(true));
+            
+            // 1. Backend API call (Jo aapne import kiya hai)
+            await deleteChat(chatId); 
+    
+            // 2. Redux state se delete karna (Jo aapne slice mein banaya hai)
+            dispatch(deleteChatState(chatId));
+    
+            dispatch(setLoading(false));
+        } catch (err) {
+            console.error("Delete failed:", err);
+            dispatch(setError("Could not delete chat"));
+            dispatch(setLoading(false));
+        }
     }
 
     return {
         initializeSocketConnection,
         handleSendMessage,
         handleGetChats,
-        handleOpenChat
+        handleOpenChat,
+        handleDeleteChat
     }
 
 }

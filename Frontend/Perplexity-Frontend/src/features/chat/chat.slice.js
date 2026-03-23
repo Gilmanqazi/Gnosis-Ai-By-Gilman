@@ -39,9 +39,17 @@ const chatSlice = createSlice({
         setError: (state, action) => {
             state.error = action.payload
         },
+
+        deleteChatState: (state, action) => {
+            const chatId = action.payload;
+            delete state.chats[chatId]; // State se chat remove karna
+            if (state.currentChatId === chatId) {
+                state.currentChatId = null; // Agar wahi chat khuli hai toh Home pe bhej do
+            }
+        },
     }
 })
 
-export const { setChats, setCurrentChatId, setLoading, setError, createNewChat, addNewMessage, addMessages } = chatSlice.actions
+export const { setChats, setCurrentChatId, setLoading, setError, createNewChat, addNewMessage, addMessages,deleteChatState } = chatSlice.actions
 export default chatSlice.reducer
 
